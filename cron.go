@@ -26,7 +26,7 @@ type name interface{}
 
 type schedule func(tm time.Time) (ok bool)
 
-func NewCron(ticker time.Duration) (c *Cron, err error) {
+func New(ticker time.Duration) (c *Cron, err error) {
 	if ticker < time.Second {
 		err = fmt.Errorf("the ticker duration is set too low: %v", ticker)
 
@@ -95,9 +95,11 @@ func (c *Cron) AddSchedule(name interface{}, handler func(tm time.Time) (ok bool
 	return
 }
 
-func (c *Cron) DelSchedule(name interface{}, scheduleId int) (err error) {
+func (c *Cron) DelSchedule(scheduleId int) (err error) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
+
+	curName := c.names[scheduleId]
 
 	_, ok := c.schedules[scheduleId]
 	if !ok {
@@ -108,10 +110,10 @@ func (c *Cron) DelSchedule(name interface{}, scheduleId int) (err error) {
 
 	delete(c.schedules, scheduleId)
 
-	ids := c.ids[name]
+	ids := c.ids[curName]
 	for i, id := range ids {
 		if id == scheduleId {
-			c.ids[name] = append(ids[:i], ids[i+1:]...)
+			c.ids[curName] = append(ids[:i], ids[i+1:]...)
 
 			ok = true
 
@@ -120,7 +122,7 @@ func (c *Cron) DelSchedule(name interface{}, scheduleId int) (err error) {
 	}
 
 	if !ok {
-		err = fmt.Errorf("there isn't schedule with ID %d into namespace %s", scheduleId, name)
+		err = fmt.Errorf("there isn't schedule with ID %d into namespace %s", scheduleId, curName)
 
 		return
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 func TestCron(t *testing.T) {
-	cron, err := NewCron(time.Second)
+	cron, err := New(time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -18,7 +18,7 @@ func TestCron(t *testing.T) {
 		t.Fatal("Cron doesn't return error on unexpected job name deleting")
 	}
 
-	err = cron.DelSchedule("job", 123)
+	err = cron.DelSchedule(123)
 	if err == nil {
 		t.Fatal("Cron doesn't return error on unexpected job schedule deleting")
 	}
@@ -38,7 +38,7 @@ func TestCron(t *testing.T) {
 		t.Fatal("Schedule works unexpectedly")
 	}
 
-	err = cron.DelSchedule("job", scheduleId)
+	err = cron.DelSchedule(scheduleId)
 	if err != nil {
 		t.Fatal(err)
 	}
