@@ -7,7 +7,7 @@ import (
 )
 
 type Cron struct {
-	mx *sync.RWMutex
+	mx sync.RWMutex
 
 	ticker *time.Ticker
 
@@ -34,7 +34,7 @@ func New(ticker time.Duration) (c *Cron, err error) {
 	}
 
 	c = &Cron{
-		mx: &sync.RWMutex{},
+		mx: sync.RWMutex{},
 
 		ticker: time.NewTicker(ticker),
 
@@ -149,6 +149,7 @@ func (c *Cron) UnregisterJob(name interface{}) (err error) {
 	}
 
 	delete(c.ids, name)
+	delete(c.jobs, name)
 
 	return
 }
